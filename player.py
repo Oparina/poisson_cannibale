@@ -1,4 +1,6 @@
 from enum import Enum
+from game_constants import SCREEN_HEIGHT
+from game_constants import SCREEN_WIDTH
 
 from fish_animation import FishAnimation
 
@@ -37,6 +39,16 @@ class Player:
     def update(self, delta_time):      
         self.current_animation.center_x += self.current_animation.change_x
         self.current_animation.center_y += self.current_animation.change_y
+
+        if self.current_animation.left < 0:
+            self.current_animation.left = 0
+        elif self.current_animation.right > SCREEN_WIDTH - 1:
+            self.current_animation.right = SCREEN_WIDTH - 1
+
+        if self.current_animation.bottom < 0:
+            self.current_animation.bottom = 0
+        elif self.current_animation.top < SCREEN_HEIGHT:
+            self.current_animation.bottom = SCREEN_HEIGHT
 
         self.current_animation.on_update(delta_time)
 
