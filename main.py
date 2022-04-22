@@ -33,7 +33,7 @@ class MyGame(arcade.Window):
         self.player_move_up = False
         self.player_move_down = False
         self.player_move_left = False
-        self.player_move_right = True
+        self.player_move_right = False
 
         self.enemy_list = None
 
@@ -112,6 +112,7 @@ class MyGame(arcade.Window):
         Paramètre:
             - delta_time : le nombre de milliseconde depuis le dernier update.
         """
+        
         # Calculate elapsed time
         self.game_timer.accumulate()
 
