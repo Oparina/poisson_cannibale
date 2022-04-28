@@ -11,6 +11,7 @@ from game_time import GameElapsedTime
 from player import Player, Direction
 from enemy_fish import EnemyFish
 import game_constants as gc
+from game_state import GameState
 
 
 class MyGame(arcade.Window):
@@ -39,6 +40,8 @@ class MyGame(arcade.Window):
 
         self.game_camera = None
         self.gui_camera = None
+
+        self.game_state = GameState.GAME_MENU
 
         self.game_timer = GameElapsedTime()
 
@@ -83,26 +86,35 @@ class MyGame(arcade.Window):
         """
         arcade.start_render()
 
-        # Game camera rendering
-        self.game_camera.use()
-        self.back_ground.draw()
+        if self.game_state == GameState.GAME_MENU:
+            arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT // 2,
+                                         200, 200, arcade.color.GRAY)
+            arcade.draw_text("PRESS SPACE TO PLAY", 200, 200, arcade.color.WHITE_SMOKE,
+                             20, width=100, align="center")
 
-        self.player.draw()
+        if self.game_state == GameState.GAME_RUNNING:
+            # Game camera rendering
+            self.game_camera.use()
+            self.back_ground.draw()
 
-        self.enemy_list.draw()
+            self.player.draw()
 
-        # Gui camera rendering
-        self.gui_camera.use()
-        arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT - 25, gc.SCREEN_WIDTH, 50, arcade.color.BLEU_DE_FRANCE)
+            self.enemy_list.draw()
 
-        arcade.draw_text("Lives :", 5, gc.SCREEN_HEIGHT - 35, arcade.color.WHITE_SMOKE, 20, width=100, align="center")
+            # Gui camera rendering
+            self.gui_camera.use()
+            arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT - 25,
+                                         gc.SCREEN_WIDTH, 50, arcade.color.BLEU_DE_FRANCE)
 
-        arcade.draw_text(
-            f"Time played : {self.game_timer.get_time_string()}",
-            gc.SCREEN_WIDTH - 350, 
-            gc.SCREEN_HEIGHT - 35, 
-            arcade.color.WHITE_SMOKE, 
-            20, width=400, align="center")
+            arcade.draw_text("Lives :", 5, gc.SCREEN_HEIGHT - 35, arcade.color.WHITE_SMOKE,
+                             20, width=100, align="center")
+
+            arcade.draw_text(
+                f"Time played : {self.game_timer.get_time_string()}",
+                gc.SCREEN_WIDTH - 350,
+                gc.SCREEN_HEIGHT - 35,
+                arcade.color.WHITE_SMOKE,
+                20, width=400, align="center")
 
     def on_update(self, delta_time):
         """
@@ -112,32 +124,34 @@ class MyGame(arcade.Window):
         Paramètre:
             - delta_time : le nombre de milliseconde depuis le dernier update.
         """
-        
-        # Calculate elapsed time
-        self.game_timer.accumulate()
 
-        self.player.update(delta_time)
-        self.enemy_list.update()
+        if self.game_state == GameState.GAME_RUNNING:
+            # Calculate elapsed time
+            self.game_timer.accumulate()
+
+            self.player.update(delta_time)
+            self.enemy_list.update()
 
     def update_player_speed(self):
         """
         Will update player position according to various movement flags.
         :return: None
         """
-        self.player.current_animation.change_x = 0
-        self.player.current_animation.change_y = 0
+        if self.game_state == GameState.GAME_RUNNING:
+            self.player.current_animation.change_x = 0
+            self.player.current_animation.change_y = 0
 
-        if self.player_move_left and not self.player_move_right:
-            self.player.change_direction(Direction.LEFT)
-            self.player.current_animation.change_x = -Player.MOVEMENT_SPEED
-        elif self.player_move_right and not self.player_move_left:
-            self.player.change_direction(Direction.RIGHT)
-            self.player.current_animation.change_x = Player.MOVEMENT_SPEED
+            if self.player_move_left and not self.player_move_right:
+                self.player.change_direction(Direction.LEFT)
+                self.player.current_animation.change_x = -Player.MOVEMENT_SPEED
+            elif self.player_move_right and not self.player_move_left:
+                self.player.change_direction(Direction.RIGHT)
+                self.player.current_animation.change_x = Player.MOVEMENT_SPEED
 
-        if self.player_move_up and not self.player_move_down:
-            self.player.current_animation.change_y = Player.MOVEMENT_SPEED
-        elif self.player_move_down and not self.player_move_up:
-            self.player.current_animation.change_y = -Player.MOVEMENT_SPEED
+            if self.player_move_up and not self.player_move_down:
+                self.player.current_animation.change_y = Player.MOVEMENT_SPEED
+            elif self.player_move_down and not self.player_move_up:
+                self.player.current_animation.change_y = -Player.MOVEMENT_SPEED
 
     def on_key_press(self, key, key_modifiers):
         """
@@ -150,18 +164,23 @@ class MyGame(arcade.Window):
         Pour connaître la liste des touches possibles:
         https://api.arcade.academy/en/latest/arcade.key.html
         """
-        if key == arcade.key.A:
-            self.player_move_left = True
-            self.update_player_speed()
-        elif key == arcade.key.D:
-            self.player_move_right = True
-            self.update_player_speed()
-        elif key == arcade.key.W:
-            self.player_move_up = True
-            self.update_player_speed()
-        elif key == arcade.key.S:
-            self.player_move_down = True
-            self.update_player_speed()
+        if self.game_state == GameState.GAME_MENU:
+            if key == arcade.key.SPACE:
+                self.game_state = GameState.GAME_RUNNING
+
+        if self.game_state == GameState.GAME_RUNNING:
+            if key == arcade.key.A:
+                self.player_move_left = True
+                self.update_player_speed()
+            elif key == arcade.key.D:
+                self.player_move_right = True
+                self.update_player_speed()
+            elif key == arcade.key.W:
+                self.player_move_up = True
+                self.update_player_speed()
+            elif key == arcade.key.S:
+                self.player_move_down = True
+                self.update_player_speed()
 
     def on_key_release(self, key, key_modifiers):
         """
@@ -170,18 +189,19 @@ class MyGame(arcade.Window):
             - key: la touche relâchée
             - key_modifiers: est-ce que l'usager appuie sur "shift" ou "ctrl" ?
         """
-        if key == arcade.key.A:
-            self.player_move_left = False
-            self.update_player_speed()
-        elif key == arcade.key.D:
-            self.player_move_right = False
-            self.update_player_speed()
-        elif key == arcade.key.W:
-            self.player_move_up = False
-            self.update_player_speed()
-        elif key == arcade.key.S:
-            self.player_move_down = False
-            self.update_player_speed()
+        if self.game_state == GameState.GAME_RUNNING:
+            if key == arcade.key.A:
+                self.player_move_left = False
+                self.update_player_speed()
+            elif key == arcade.key.D:
+                self.player_move_right = False
+                self.update_player_speed()
+            elif key == arcade.key.W:
+                self.player_move_up = False
+                self.update_player_speed()
+            elif key == arcade.key.S:
+                self.player_move_down = False
+                self.update_player_speed()
 
 
 def main():
