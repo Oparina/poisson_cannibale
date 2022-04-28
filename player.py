@@ -40,15 +40,15 @@ class Player:
         self.current_animation.center_x += self.current_animation.change_x
         self.current_animation.center_y += self.current_animation.change_y
 
-        if self.current_animation.left < 0:
-            self.current_animation.left = 0
-        elif self.current_animation.right > SCREEN_WIDTH - 1:
-            self.current_animation.right = SCREEN_WIDTH - 1
+        if self.current_animation.center_x < 0:
+            self.current_animation.center_x = SCREEN_WIDTH
+        elif self.current_animation.center_x > SCREEN_WIDTH:
+            self.current_animation.center_x = 0
 
         if self.current_animation.bottom < 0:
             self.current_animation.bottom = 0
-        elif self.current_animation.top < SCREEN_HEIGHT:
-            self.current_animation.bottom = SCREEN_HEIGHT
+        elif self.current_animation.top > SCREEN_HEIGHT - 50:
+            self.current_animation.top = SCREEN_HEIGHT - 50
 
         self.current_animation.on_update(delta_time)
 
