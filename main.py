@@ -87,6 +87,9 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         if self.game_state == GameState.GAME_MENU:
+            self.back_ground.draw()
+            arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT - 25,
+                                         gc.SCREEN_WIDTH, 50, arcade.color.BLEU_DE_FRANCE)
             arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT // 2,
                                          200, 200, arcade.color.GRAY)
             arcade.draw_text("PRESS SPACE TO PLAY", 200, 200, arcade.color.WHITE_SMOKE,
