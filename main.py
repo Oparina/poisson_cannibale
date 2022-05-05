@@ -13,8 +13,6 @@ from enemy_fish import EnemyFish
 import game_constants as gc
 from game_state import GameState
 
-#tengze reporting in
-
 class MyGame(arcade.Window):
     """
     La classe principale de l'application
