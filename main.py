@@ -35,7 +35,6 @@ class MyGame(arcade.Window):
         self.player_move_down = False
         self.player_move_left = False
         self.player_move_right = False
-        self.cumface = True
 
         self.enemy_list = None
 
