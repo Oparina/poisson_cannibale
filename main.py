@@ -35,6 +35,7 @@ class MyGame(arcade.Window):
         self.player_move_down = False
         self.player_move_left = False
         self.player_move_right = False
+        self.cumface = True
 
         self.enemy_list = None
 
@@ -92,7 +93,7 @@ class MyGame(arcade.Window):
                                          gc.SCREEN_WIDTH, 50, arcade.color.BLEU_DE_FRANCE)
             arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT // 2,
                                          200, 200, arcade.color.GRAY)
-            arcade.draw_text("PRESS SPACE TO PLAY", 200, 200, arcade.color.WHITE_SMOKE,
+            arcade.draw_text("PRESS SPACE TO PLAY", 460, 440, arcade.color.WHITE_SMOKE,
                              20, width=100, align="center")
 
         if self.game_state == GameState.GAME_RUNNING:
