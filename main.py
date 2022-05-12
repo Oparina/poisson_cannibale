@@ -47,6 +47,8 @@ class MyGame(arcade.Window):
 
         self.respawn_protection = False
 
+        self.score = 0
+
     def setup(self):
         """
         Configurer les variables de votre jeu ici. Il faut appeler la méthode une nouvelle
@@ -114,6 +116,9 @@ class MyGame(arcade.Window):
             arcade.draw_text(f"Lives :{Player.PLAYER_LIVES}", 5, gc.SCREEN_HEIGHT - 35, arcade.color.WHITE_SMOKE,
                              20, width=100, align="center")
 
+            arcade.draw_text(f"Score:{self.score}", 400, gc.SCREEN_HEIGHT - 35,  arcade.color.WHITE_SMOKE,
+                             20, width=100, align="center")
+
             arcade.draw_text(
                 f"Time played : {self.game_timer.get_time_string()}",
                 gc.SCREEN_WIDTH - 350,
@@ -145,6 +150,8 @@ class MyGame(arcade.Window):
                     if self.player.current_animation.scale < 0.6:
                         self.player.left_animation.scale += 0.05
                         self.player.right_animation.scale += 0.05
+                    else:
+                        self.score += 1
 
                 else:
                     Player.PLAYER_LIVES -= 1
