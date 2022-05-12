@@ -34,6 +34,7 @@ class MyGame(arcade.Window):
         self.player_move_down = False
         self.player_move_left = False
         self.player_move_right = False
+        self.enemy = None
 
         self.enemy_list = None
 
@@ -43,6 +44,8 @@ class MyGame(arcade.Window):
         self.game_state = GameState.GAME_MENU
 
         self.game_timer = GameElapsedTime()
+
+        self.respawn_protection = False
 
     def setup(self):
         """
@@ -108,7 +111,7 @@ class MyGame(arcade.Window):
             arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT - 25,
                                          gc.SCREEN_WIDTH, 50, arcade.color.BLEU_DE_FRANCE)
 
-            arcade.draw_text("Lives :", 5, gc.SCREEN_HEIGHT - 35, arcade.color.WHITE_SMOKE,
+            arcade.draw_text(f"Lives :{Player.PLAYER_LIVES}", 5, gc.SCREEN_HEIGHT - 35, arcade.color.WHITE_SMOKE,
                              20, width=100, align="center")
 
             arcade.draw_text(
@@ -133,6 +136,21 @@ class MyGame(arcade.Window):
 
             self.player.update(delta_time)
             self.enemy_list.update()
+
+            touch = arcade.check_for_collision_with_list(self.player.current_animation, self.enemy_list)
+
+            for enemy_fish in touch:
+                if self.player.current_animation.scale > enemy_fish.scale:
+                    enemy_fish.remove_from_sprite_lists()
+                    if self.player.current_animation.scale < 0.6:
+                        self.player.left_animation.scale += 0.05
+                        self.player.right_animation.scale += 0.05
+
+                else:
+                    Player.PLAYER_LIVES -= 1
+                    self.player.left_animation.scale = 0.1
+                    self.player.right_animation.scale = 0.1
+                    self.respawn_protection
 
     def update_player_speed(self):
         """
