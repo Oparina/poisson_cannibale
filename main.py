@@ -152,7 +152,7 @@ class MyGame(arcade.Window):
                         self.player.right_animation.scale += 0.05
                     else:
                         self.score += 1
-
+#lol
                 else:
                     Player.PLAYER_LIVES -= 1
                     self.player.left_animation.scale = 0.1
