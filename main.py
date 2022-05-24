@@ -45,10 +45,10 @@ class MyGame(arcade.Window):
         self.game_state = GameState.GAME_MENU
 
         self.game_timer = GameElapsedTime()
-        self.protection_time = time.time()
-        self.start_time = None
 
         self.respawn_protection = False
+
+        self.invincible_time = time.time()
 
         self.score = 0
 
@@ -167,10 +167,11 @@ class MyGame(arcade.Window):
                 self.protection_countdown()
 
     def protection_countdown(self):
-        self.start_time = time.time()
-        self.protection_time = time.time() - self.start_time
-        if self.protection_time >= 5:
-            self.respawn_protection = False
+        time_of_death = time.time()
+        invincible_time = time.time()
+        print(invincible_time - time_of_death)
+        #if int(invincible_time) >= 5:
+            #self.respawn_protection = False
 
     def update_player_speed(self):
         """
