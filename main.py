@@ -4,7 +4,7 @@ Le jeu consiste a ce que notre poisson mange des poissons plus petits que lui po
 L'utilisateur doit aussi éviter les poissons plus gros afin de ne pas perdre de vie.
 """
 import random
-
+import time
 import arcade
 
 from game_time import GameElapsedTime
@@ -12,6 +12,7 @@ from player import Player, Direction
 from enemy_fish import EnemyFish
 import game_constants as gc
 from game_state import GameState
+
 
 class MyGame(arcade.Window):
     """
@@ -44,6 +45,8 @@ class MyGame(arcade.Window):
         self.game_state = GameState.GAME_MENU
 
         self.game_timer = GameElapsedTime()
+        self.protection_time = time.time()
+        self.start_time = None
 
         self.respawn_protection = False
 
@@ -145,19 +148,29 @@ class MyGame(arcade.Window):
             touch = arcade.check_for_collision_with_list(self.player.current_animation, self.enemy_list)
 
             for enemy_fish in touch:
-                if self.player.current_animation.scale > enemy_fish.scale:
-                    enemy_fish.remove_from_sprite_lists()
-                    if self.player.current_animation.scale < 0.6:
-                        self.player.left_animation.scale += 0.05
-                        self.player.right_animation.scale += 0.05
+                if not self.respawn_protection:
+                    if self.player.current_animation.scale > enemy_fish.scale:
+                        enemy_fish.remove_from_sprite_lists()
+                        if self.player.current_animation.scale < 0.6:
+                            self.player.left_animation.scale += 0.05
+                            self.player.right_animation.scale += 0.05
+                        else:
+                            self.score += 1
+
                     else:
-                        self.score += 1
-#lol
-                else:
-                    Player.PLAYER_LIVES -= 1
-                    self.player.left_animation.scale = 0.1
-                    self.player.right_animation.scale = 0.1
-                    self.respawn_protection
+                        Player.PLAYER_LIVES -= 1
+                        self.player.left_animation.scale = 0.1
+                        self.player.right_animation.scale = 0.1
+                        self.respawn_protection = True
+
+            if self.respawn_protection:
+                self.protection_countdown()
+
+    def protection_countdown(self):
+        self.start_time = time.time()
+        self.protection_time = time.time() - self.start_time
+        if self.protection_time >= 5:
+            self.respawn_protection = False
 
     def update_player_speed(self):
         """
@@ -167,14 +180,12 @@ class MyGame(arcade.Window):
         if self.game_state == GameState.GAME_RUNNING:
             self.player.current_animation.change_x = 0
             self.player.current_animation.change_y = 0
-
             if self.player_move_left and not self.player_move_right:
                 self.player.change_direction(Direction.LEFT)
                 self.player.current_animation.change_x = -Player.MOVEMENT_SPEED
             elif self.player_move_right and not self.player_move_left:
                 self.player.change_direction(Direction.RIGHT)
                 self.player.current_animation.change_x = Player.MOVEMENT_SPEED
-
             if self.player_move_up and not self.player_move_down:
                 self.player.current_animation.change_y = Player.MOVEMENT_SPEED
             elif self.player_move_down and not self.player_move_up:
@@ -194,7 +205,6 @@ class MyGame(arcade.Window):
         if self.game_state == GameState.GAME_MENU:
             if key == arcade.key.SPACE:
                 self.game_state = GameState.GAME_RUNNING
-
         if self.game_state == GameState.GAME_RUNNING:
             if key == arcade.key.A:
                 self.player_move_left = True
