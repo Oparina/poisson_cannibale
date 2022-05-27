@@ -6,12 +6,18 @@ L'utilisateur doit aussi éviter les poissons plus gros afin de ne pas perdre de
 import random
 import time
 import arcade
+import arcade.gui
 
 from game_time import GameElapsedTime
 from player import Player, Direction
 from enemy_fish import EnemyFish
 import game_constants as gc
 from game_state import GameState
+
+
+class QuitButton(arcade.gui.UIFlatButton):
+    def on_click(self, event: arcade.gui.UIOnClickEvent):
+        arcade.exit()
 
 
 class MyGame(arcade.Window):
@@ -51,6 +57,33 @@ class MyGame(arcade.Window):
         self.invincible_time = time.time()
 
         self.score = 0
+
+        self.manager = arcade.gui.UIManager()
+        self.manager.enable()
+
+        self.v_box = arcade.gui.UIBoxLayout()
+
+        start_button = arcade.gui.UIFlatButton(text="Start Game", width=200)
+        self.v_box.add(start_button.with_space_around(bottom=20))
+
+        settings_button = arcade.gui.UIFlatButton(text="Settings", width=200)
+        self.v_box.add(settings_button.with_space_around(bottom=20))
+
+        quit_button = QuitButton(text="Quit", width=200)
+        self.v_box.add(quit_button)
+
+        start_button.on_click = self.on_click_start
+
+        self.manager.add(
+            arcade.gui.UIAnchorWidget(
+                anchor_x="center_x",
+                anchor_y="center_y",
+                child=self.v_box)
+        )
+
+    def on_click_start(self, event):
+        print("Start: ", event)
+        self.game_state = GameState.GAME_RUNNING
 
     def setup(self):
         """
@@ -95,12 +128,7 @@ class MyGame(arcade.Window):
 
         if self.game_state == GameState.GAME_MENU:
             self.back_ground.draw()
-            arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT - 25,
-                                         gc.SCREEN_WIDTH, 50, arcade.color.BLEU_DE_FRANCE)
-            arcade.draw_rectangle_filled(gc.SCREEN_WIDTH // 2, gc.SCREEN_HEIGHT // 2,
-                                         200, 200, arcade.color.GRAY)
-            arcade.draw_text("PRESS SPACE TO PLAY", 460, 440, arcade.color.WHITE_SMOKE,
-                             20, width=100, align="center")
+            self.manager.draw()
 
         if self.game_state == GameState.GAME_RUNNING:
             # Game camera rendering
@@ -240,6 +268,16 @@ class MyGame(arcade.Window):
             elif key == arcade.key.S:
                 self.player_move_down = False
                 self.update_player_speed()
+
+    def on_mouse_press(self, x, y, button, key_modifiers):
+        """
+        Méthode invoquée lorsque l'usager clique un bouton de la souris.
+        Paramètres:
+            - x, y: coordonnées où le bouton a été cliqué
+            - button: le bouton de la souris appuyé
+            - key_modifiers: est-ce que l'usager appuie sur "shift" ou "ctrl" ?
+        """
+        pass
 
 
 def main():
