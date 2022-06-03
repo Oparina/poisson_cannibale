@@ -4,7 +4,6 @@ Le jeu consiste a ce que notre poisson mange des poissons plus petits que lui po
 L'utilisateur doit aussi éviter les poissons plus gros afin de ne pas perdre de vie.
 """
 import random
-import time
 import arcade
 import arcade.gui
 
@@ -55,6 +54,8 @@ class MyGame(arcade.Window):
         self.score = 0
 
         self.total_score = 0
+
+        self.high_score = []
 
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
@@ -155,6 +156,10 @@ class MyGame(arcade.Window):
                 arcade.color.WHITE_SMOKE,
                 20, width=400, align="center")
 
+        if self.game_state == GameState.GAME_OVER:
+            self.back_ground.draw()
+            arcade.draw_text("GAME OVER", 20, gc.SCREEN_HEIGHT - 25, gc.SCREEN_WIDTH / 2, arcade.csscolor.RED, 50)
+
     def on_update(self, delta_time):
         """
         Toute la logique pour déplacer les objets de votre jeu et de
@@ -187,8 +192,18 @@ class MyGame(arcade.Window):
                     self.player.right_animation.scale = 0.1
                     enemy_fish.remove_from_sprite_lists()
 
-            score_per_seconds = self.game_timer.time_score()
-            self.total_score = score_per_seconds + self.score
+            self.get_total_time()
+
+            if Player.PLAYER_LIVES == 0:
+                self.game_state = GameState.GAME_OVER
+
+        if self.game_state == GameState.GAME_OVER:
+            self.high_score.append(self.total_score)
+            self.total_score = 0
+
+    def get_total_time(self):
+        score_per_seconds = self.game_timer.time_score()
+        self.total_score = score_per_seconds + self.score
                         
     def update_player_speed(self):
         """
