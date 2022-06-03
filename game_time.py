@@ -1,4 +1,5 @@
 import time
+import game_constants as gc
 
 
 class GameElapsedTime:
@@ -7,7 +8,7 @@ class GameElapsedTime:
     """
     def __init__(self):
         self.start_time = time.time()
-        self.elapsed_time = None
+        self.elapsed_time = 0
 
     def accumulate(self):
         """
@@ -34,5 +35,11 @@ class GameElapsedTime:
                 hours = minutes // 60
                 minutes = minutes % 60
             return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+
+    def time_score(self):
+        seconds = self.elapsed_time
+
+        score = seconds // gc.SECONDS
+        return int(score) * gc.SCORE_TIME
 
 

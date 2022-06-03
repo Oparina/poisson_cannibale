@@ -52,11 +52,9 @@ class MyGame(arcade.Window):
 
         self.game_timer = GameElapsedTime()
 
-        self.respawn_protection = False
-
-        self.invincible_time = time.time()
-
         self.score = 0
+
+        self.total_score = 0
 
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
@@ -147,7 +145,7 @@ class MyGame(arcade.Window):
             arcade.draw_text(f"Lives :{Player.PLAYER_LIVES}", 5, gc.SCREEN_HEIGHT - 35, arcade.color.WHITE_SMOKE,
                              20, width=100, align="center")
 
-            arcade.draw_text(f"Score:{self.score}", 400, gc.SCREEN_HEIGHT - 35,  arcade.color.WHITE_SMOKE,
+            arcade.draw_text(f"Score:{self.total_score}", 400, gc.SCREEN_HEIGHT - 35,  arcade.color.WHITE_SMOKE,
                              20, width=100, align="center")
 
             arcade.draw_text(
@@ -176,31 +174,22 @@ class MyGame(arcade.Window):
             touch = arcade.check_for_collision_with_list(self.player.current_animation, self.enemy_list)
 
             for enemy_fish in touch:
-                if not self.respawn_protection:
-                    if self.player.current_animation.scale > enemy_fish.scale:
-                        enemy_fish.remove_from_sprite_lists()
-                        if self.player.current_animation.scale < 0.6:
-                            self.player.left_animation.scale += 0.05
-                            self.player.right_animation.scale += 0.05
-                        else:
-                            self.score += 1
+                if self.player.current_animation.scale > enemy_fish.scale:
+                    enemy_fish.remove_from_sprite_lists()
+                    self.score += gc.SCORE_TIME
+                    if self.player.current_animation.scale < 0.6:
+                        self.player.left_animation.scale += 0.05
+                        self.player.right_animation.scale += 0.05
 
-                    else:
-                        Player.PLAYER_LIVES -= 1
-                        self.player.left_animation.scale = 0.1
-                        self.player.right_animation.scale = 0.1
-                        self.respawn_protection = True
+                else:
+                    Player.PLAYER_LIVES -= 1
+                    self.player.left_animation.scale = 0.1
+                    self.player.right_animation.scale = 0.1
+                    enemy_fish.remove_from_sprite_lists()
 
-            if self.respawn_protection:
-                self.protection_countdown()
-
-    def protection_countdown(self):
-        time_of_death = time.time()
-        invincible_time = time.time()
-        print(invincible_time - time_of_death)
-        #if int(invincible_time) >= 5:
-            #self.respawn_protection = False
-
+            score_per_seconds = self.game_timer.time_score()
+            self.total_score = score_per_seconds + self.score
+                        
     def update_player_speed(self):
         """
         Will update player position according to various movement flags.
